@@ -1,42 +1,59 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <div id="mainContent">
-    <div id="wpaStatus">
-      <ul>
-        {% if config_hash['wpa_enabled'] == '1': %}
-          <li><a href="{{ url_for('wpa_settings') }}">Config. Mode WPA: ENABLED</a></li>
-          <li><a href="{{ url_for('wpa_settings') }}">Key: {{ config_hash['wpa_key'] }}</a></li>
-        {% endif %}
+<div>
+  <h1>WiFi Setup</h1>
 
-        {% if config_hash['wpa_enabled'] == '0': %}
-          <li><a href="{{ url_for('wpa_settings') }}">Config. Mode WPA: DISABLED</a></li>
-      {% endif %}
-      </ul>
+  <form action="{{ url_for('save_credentials') }}" method="post">
+    <div class="form-section">
+      <label for="ssid">Select your WiFi network</label>
+      <select id="ssid" name="ssid" onchange="enableSubmit()"
+        required>
+        {% for ssid in wifi_ap_array %}
+        <option value='{{ ssid }}'>{{ ssid }}</option>
+        {% endfor %}
+      </select>
     </div>
 
-    <h1>WiFi Setup</h1>
-    <div class="wifiIcon"></div>
+    <div class="form-section">
+      <label for="wifi_key">Enter WiFi password</label>
+      <input id="password" name="wifi_key" onkeyup="enableSubmit()"
+        placeholder="p@ssW0rd" required />
+      <button id="hider" onclick="toggleHide()"
+        type="button">Hide</button>
+    </div>
+    <p>
+      When you click 'Submit' your device will reboot and try to
+      connect to your configured WiFi.
+      <br>
+      If it does not succeed in {{ config_hash['auto_config_delay'] }}
+      seconds,
+      you can connect to this site again to reset the network and
+      password.
+    </p>
 
-    <form action="{{ url_for('save_credentials') }}" method=post>
-      <ul>
-        <li><label for="ssid">Select your WiFi network</label></li>
+    <input id="submit" type="submit" disabled />
+  </form>
 
-        <li class="wifiNetwork">
-          <select id="ssid" name="ssid", class="wifiNetworkInputs">
-            {% for ssid in wifi_ap_array %}
-              <option value='{{ ssid }}'>{{ ssid }}</option>
-            {% endfor %}
-          </select>
-        </li>
+  <script type="text/javascript">
+    function toggleHide() {
+      if (password.type === 'password') {
+        password.type = 'text';
+        hider.innerText = 'Hide';
+      } else {
+        password.type = 'password'
+        hider.innerText = 'Show';
+      }
+    }
 
-        <li><a href="{{ url_for('manual_ssid_entry') }}" class="manualSSIDEntry">manual SSID entry -></a></li>
+    function enableSubmit() {
+      if (ssid.value && password.value) {
+        submit.disabled = null;
+      } else {
+        submit.disabled = true;
+      }
+    }
 
-        <li><label for="wifi_key">Your Wifi password</label></li>
-        <li><input type="password" name="wifi_key", class="wifiNetworkInputs"></li>
-
-        <input type="submit", class="wifiConnectButton">
-      </ul>
-    </form>
-  </div>
+  </script>
+</div>
 {% endblock %}
