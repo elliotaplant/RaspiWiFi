@@ -25,10 +25,11 @@ def wpa_settings():
 def save_credentials():
     ssid = request.form['ssid']
     wifi_key = request.form['wifi_key']
+    config_hash = config_file_hash()
 
     print('save_credentials', ssid, wifi_key)
 
-    return render_template('save_credentials.html', ssid=ssid)
+    return render_template('save_credentials.html', ssid=ssid, config_hash=config_hash)
 
 
 @app.route('/save_wpa_credentials', methods=['GET', 'POST'])
